@@ -1,0 +1,7 @@
+# 全てのイベントログの表示
+コマンド : Get-WinEvent -ListLog *
+
+# イベントログに「System」という文字列を含むイベントログの表示
+コマンド : Get-WinEvent -ListLog *system* | `
+Format-Table RecordCount, LogName, -AutoSize
+
