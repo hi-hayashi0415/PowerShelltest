@@ -1,0 +1,84 @@
+# ブートデバイスドライバーの表示
+コマンド : Get-WmiObject -Class Win32_SystemDriver -Filter "StartMode='Manual'"
+
+# システムサービスアカウントの表示
+コマンド : Get-WmiObject -Class Win32_Service | `
+ ForEach-Object{$_.StartName} | Sort-Object -Unique
+
+# システムサービス情報の表示
+コマンド : Get-Service
+
+# 起動しているシステムサービスをリダイレクトでファイルへ出力する
+コマンド : Get-Service | Where-Object{$_.Status -eq "running"} > ` 
+C:\logs\RunServices.txt
+
+# Out-Filesコマンドレットを使用して起動しているシステムサービスをファイルへ出力する
+コマンド : Get-Service | Where-Object{$_.Status -eq "running"} | ` Out-File -FilePath C:\logs\RunServices.txt
+
+# 起動しているシステムサービスのサービス名、サービスの表示名と状態をCSVファイルとして出力する。
+コマンド : Get-Service | Where-Object{$_.Status -eq "running"} | ` 
+Select-Object Status,Name,DisplayName | `
+>> Export-Csv -Path C:\logs\RunServices.csv
+
+# 現在のシステムサービスの開始モードの表示（現在）
+コマンド : Get-WmiObject -Class Win32_Service | ` 
+ForEach-Object{$_.StartMode} | Sort-Object -Unique
+
+# Get-NetAdapterによる物理アダプターの表示
+コマンド :  Get-NetAdapter -Physical
+
+# Disable-NetAdapterとEnable-NetAdapterによるアダプターの無効化/有効化
+コマンド :  Disable-NetAdapter Wi-Fi -Confirm:0
+コマンド :  Enable-Adapter Wi-Fi 
+
+# Get-NetAdapterによる無線アダプターの選出と、Disable-NetAdapterによる無効化
+コマンド :  Get-NetAdapter | ` Where-Object { $_.PhysicalMediaType - like "*802.11*"} | ` 
+Disable-NetManager -Confirm:0 
+
+# 全てのネットワークアダプターの再起動
+コマンド :  Get-NetAdapter | Restart-NetAdapter
+
+# NetTCPIPパラメータのコマンド
+コマンド :  Get-Command -Module NetTCPIP
+
+# DnsClientモジュールで提供されるコマンド
+コマンド :  Get-Command -Module DnsClient 
+
+# Get-NetIPAddresssによるIPアドレスとサブネットマスクの表示
+コマンド :  Get-NetIPAddress -InterfaceAlias イーサネット　` 
+-AddressFamily IPv4
+
+# Get-NetIPConfigurationによるIPアドレスとデフォルトゲートウェイの表示
+コマンド :  Get-NetIPConfiguration イーサネット
+
+# Set-NetFirewallProfileによるプロファイルの無効化
+コマンド : Set-NetFirewallProfile -Name Domain -Enabled false
+
+# Get-NetFirewallRuleによる規則の表示
+コマンド : Get-NetFirewallRule -Direction Inbound | ` 
+Sort-Object DisplayGroup | ` Format-Table DisplayName, Profile, Enabled
+
+# Get-NetFirewallRuleによるリモートデスクトップに関する規則の表示
+コマンド : Get-NetFirewallRule -Direction Inbound ` 
+-DisplayGroup "*デスク*" | ` Format-Table DisplayName, Profile, Enabled
+
+# Set-NetFirewallRuleによる規則の有効化
+コマンド : Set-NetFirewallRule -Direction Inbound ` 
+-DisplayGroup "*デスク*"  ` -Enabled  True 
+
+# Get-NetFirewallRuleで規則を選別し、Set-NetFirewallRuleで有効化
+コマンド : Get-NetFirewallRule -Direction Inbound ` -DisplayGroup "*デスク*" | ` 
+Set-NetFirewallRule -Enabled True
+
+# New-SetFirewallRuleによるTCPポート80を許可する規則の作成(ポート番号80なのでHTTPの通信許可っぽい)
+コマンド : New-NetFirewallRule -DisplayName "Allow TCP80" `
+-Profile Domain -Direction Inbound `
+-LocalPort 80 -Protocol TCP -Action Allow
+
+# New-SetFirewallRuleによる「C:\SAMP\SAMP.EXE」というアプリケーションの受信の許可をする規則の作成
+コマンド : New-NetFirewallRule -DisplayName "Allow Samp" `
+-Direction Inbound `
+-Program "C:\SAMP\SAMP.EXE" `
+-Action Allow
+
+
